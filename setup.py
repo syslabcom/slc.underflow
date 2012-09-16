@@ -23,6 +23,7 @@ setup(
     install_requires=[
         'setuptools',
         'Products.CMFPlone',
+        'plone.principalsource',
         'slc.mailrouter',
     ],
     entry_points="""
