@@ -3,6 +3,7 @@
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="slc.underflow">
 
   <five:registerPackage package="." initialize=".initialize" />
@@ -14,5 +15,15 @@
       description="Installs slc.underflow"
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
+
+    <include package="plone.principalsource" />
+
+    <!-- Override plone.app.discussion's conversation view for questions -->
+    <browser:page
+        name="conversation_view"
+        for="slc.underflow.question.IQuestion"
+        class=".views.ConversationView"
+        permission="zope2.View"
+        />
 
 </configure>
