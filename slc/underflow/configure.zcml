@@ -26,4 +26,13 @@
         permission="zope2.View"
         />
 
+    <!-- Extend discussion fields -->
+    <adapter
+      factory=".extensions.CommentExtenderFactory"
+      provides=".extensions.IExtraFields" />
+
+    <adapter
+      factory=".extensions.CommentExtender"
+      provides="plone.z3cform.fieldsets.interfaces.IFormExtender" />
+
 </configure>
