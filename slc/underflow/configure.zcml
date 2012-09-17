@@ -26,13 +26,34 @@
         permission="zope2.View"
         />
 
-    <!-- Extend discussion fields -->
-    <adapter
-      factory=".extensions.CommentExtenderFactory"
-      provides=".extensions.IExtraFields" />
+    <!-- Override Comments viewlet -->
+    <browser:viewlet
+        name="plone.comments"
+        for="Products.CMFCore.interfaces.IContentish"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContent"
+        view="plone.app.layout.globals.interfaces.IViewView"
+        class=".question.CommentsViewlet"
+        permission="zope2.View"
+        layer="slc.underflow.interfaces.ISlcUnderflow"
+        />
 
-    <adapter
-      factory=".extensions.CommentExtender"
-      provides="plone.z3cform.fieldsets.interfaces.IFormExtender" />
+    <!-- event handlers -->
+    <subscriber
+        for="plone.app.discussion.interfaces.IComment
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".eventhandlers.notify_followers"
+        />
 
+    <subscriber
+        for="slc.underflow.question.IQuestion
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".eventhandlers.notify_nosy"
+        />
+
+    <subscriber
+        for="slc.underflow.question.IQuestion
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".eventhandlers.notify_nosy"
+        />
+  
 </configure>
