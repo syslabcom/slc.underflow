@@ -13,5 +13,5 @@ class IQuestion(form.Schema):
         title=_(u"Information Request"),
         required=False)
     nosy = Set(
-        title=_(u"Send question to"),
+        title=_(u"Audience"),
         value_type=Choice(vocabulary="plone.principalsource.Groups"))
