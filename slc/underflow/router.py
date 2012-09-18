@@ -14,6 +14,16 @@ from slc.mailrouter.interfaces import IMailRouter
 from slc.underflow.settings import getSettings
 from slc.underflow import MessageFactory as _
 
+def decodeheader(value):
+    """Decode RFC-2047 TEXT (e.g. "=?utf-8?q?f=C3=BCr?=" -> u"f\xfcr")."""
+    atoms = email.Header.decode_header(value)
+    decodedvalue = ""
+    for atom, charset in atoms:
+        if charset is not None:
+            atom = atom.decode(charset)
+        decodedvalue += atom
+    return decodedvalue
+
 class CommentRouter(object):
     implements(IMailRouter)
 
@@ -64,6 +74,7 @@ class CommentRouter(object):
         if not subject:
             raise NotFoundError(_("Subject is blank"))
 
+        subject = decodeheader(subject)
         pat = re.compile('[^[]*\[([^#]+)(#([^\]]+))?\]')
         m = pat.match(subject)
         if m is None:
