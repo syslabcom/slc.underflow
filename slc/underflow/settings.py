@@ -1,3 +1,5 @@
+from zope.component import queryUtility
+from plone.registry.interfaces import IRegistry
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from slc.underflow.interfaces import ISettings
@@ -11,3 +13,10 @@ class UnderflowSettings(RegistryEditForm):
 
 class UnderflowControlPanel(ControlPanelFormWrapper):
     form = UnderflowSettings
+
+def getSettings():
+    """ Return settings as configured in the configlet """
+    registry = queryUtility(IRegistry)
+    if registry is None:
+        return None
+    return registry.forInterface(ISettings)

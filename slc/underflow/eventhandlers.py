@@ -12,6 +12,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from plone.app.discussion.interfaces import IDiscussionSettings
 
+from slc.underflow.settings import getSettings
 from slc.underflow import MessageFactory as _
 
 
@@ -44,7 +45,12 @@ def notify_followers(obj, event):
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     portal = portal_url.getPortalObject()
-    sender = portal.getProperty('email_from_address')
+    
+    settings = getSettings()
+    if settings is None or settings.sender is None:
+        sender = portal.getProperty('email_from_address')
+    else:
+        sender = settings.sender
 
     # Check if a sender address is available
     if not sender:
@@ -99,7 +105,12 @@ def notify_nosy(obj, event):
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     portal = portal_url.getPortalObject()
-    sender = portal.getProperty('email_from_address')
+
+    settings = getSettings()
+    if settings is None or settings.sender is None:
+        sender = portal.getProperty('email_from_address')
+    else:
+        sender = settings.sender
 
     # Check if a sender address is available
     if not sender:
