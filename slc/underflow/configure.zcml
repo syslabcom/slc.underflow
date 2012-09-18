@@ -37,6 +37,14 @@
         layer="slc.underflow.interfaces.ISlcUnderflow"
         />
 
+    <!-- Settings configlet -->
+    <browser:page
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        name="underflow-settings"
+        class=".settings.UnderflowControlPanel"
+        permission="cmf.ManagePortal"
+        />
+
     <!-- event handlers -->
     <subscriber
         for="plone.app.discussion.interfaces.IComment

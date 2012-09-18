@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<object
+    name="portal_controlpanel"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="slc.underflow"
+    purge="False">
+    <configlet
+        title="Underflow Question settings"
+        action_id="underflow"
+        appId="slc.underflow" 
+        category="Products"
+        condition_expr=""
+        url_expr="string:${portal_url}/@@underflow-settings"
+        icon_expr="string:${portal_url}/maintenance_icon.png"
+        visible="True"    
+        i18n:attributes="title">
+            <permission>Manage portal</permission>
+    </configlet>
+</object>
