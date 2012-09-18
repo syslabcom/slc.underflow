@@ -63,5 +63,11 @@
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".eventhandlers.notify_nosy"
         />
-  
+
+    <!-- mail router -->
+    <utility
+        name="comment"
+        provides="slc.mailrouter.interfaces.IMailRouter"
+        factory=".router.CommentRouter" />
+
 </configure>
