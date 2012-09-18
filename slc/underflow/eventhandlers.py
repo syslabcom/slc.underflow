@@ -6,6 +6,7 @@ from zope.component import queryUtility
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
@@ -116,13 +117,30 @@ def notify_nosy(obj, event):
     if not emails:
         return
 
-    subject = translate(_(u"A question has been posted."),
+    # Transform the text of the question
+    transforms = getToolByName(obj, 'portal_transforms')
+    text = obj.question.output
+    if isinstance(text, unicode):
+        text = text.encode('utf8')
+    transform = transforms.convertTo('text/plain', text, context=obj,
+        mimetype='text/html')
+    if transform:
+        text = transform.getData().strip()
+    else:
+        text = ''
+
+    if isinstance(event, ObjectModifiedEvent):
+        subject = translate(_(u"A question has been modified."),
                         context=obj.REQUEST)
+    else:
+        subject = translate(_(u"A question has been posted."),
+                        context=obj.REQUEST)
+
     message = translate(Message(
             MAIL_NOTIFICATION_NOSY,
             mapping={'title': safe_unicode(obj.title),
                      'link': obj.absolute_url(),
-                     'text': obj.question}),
+                     'text': text}),
             context=obj.REQUEST)
 
     for email in emails:
