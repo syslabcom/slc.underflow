@@ -11,6 +11,7 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from plone.app.discussion.interfaces import IDiscussionSettings
+from plone.uuid.interfaces import IUUID
 
 from slc.underflow.settings import getSettings
 from slc.underflow import MessageFactory as _
@@ -22,7 +23,10 @@ MAIL_NOTIFICATION_MESSAGE = _(
              "has been posted here: ${link}\n\n"
              "---\n"
              "${text}\n"
-             "---\n")
+             "---\n\n"
+             "To respond to this comment, follow the provided link\n"
+             "or simply respond to this email while leaving the\n"
+             "subject line intact.")
 
 MAIL_NOTIFICATION_NOSY = _(
     u"mail_notification_nosy",
@@ -30,7 +34,10 @@ MAIL_NOTIFICATION_NOSY = _(
              "has been posted here: ${link}\n\n"
              "---\n"
              "${text}\n"
-             "---\n")
+             "---\n"
+             "To anwer this question, follow the provided link\n"
+             "or simply respond to this email while leaving the\n"
+             "subject line intact.")
 
 logger = logging.getLogger("slc.underflow.eventhandlers")
 
@@ -72,8 +79,9 @@ def notify_followers(obj, event):
     if not emails:
         return
 
-    subject = translate(_(u"A comment has been posted."),
-                        context=obj.REQUEST)
+    subject = translate(u"A comment has been posted [${uid}#${id}]",
+        mapping={'uid': IUUID(content_object), 'id': obj.id},
+        context=obj.REQUEST)
     message = translate(Message(
             MAIL_NOTIFICATION_MESSAGE,
             mapping={'title': safe_unicode(content_object.title),
@@ -84,11 +92,7 @@ def notify_followers(obj, event):
     for email in emails:
         # Send email
         try:
-            mail_host.send(message,
-                           email,
-                           sender,
-                           subject,
-                           charset='utf-8')
+            mail_host.send(message, email, sender, subject, charset='utf-8')
         except SMTPException:
             logger.error('SMTP exception while trying to send an ' +
                          'email from %s to %s',
@@ -141,11 +145,13 @@ def notify_nosy(obj, event):
         text = ''
 
     if isinstance(event, ObjectModifiedEvent):
-        subject = translate(_(u"A question has been modified."),
-                        context=obj.REQUEST)
+        subject = translate(u"A question has been modified [${uid}]",
+            mapping={'uid': IUUID(obj)},
+            context=obj.REQUEST)
     else:
-        subject = translate(_(u"A question has been posted."),
-                        context=obj.REQUEST)
+        subject = translate(u"A question has been posted [${uid}]",
+            mapping={'uid': IUUID(obj)},
+            context=obj.REQUEST)
 
     message = translate(Message(
             MAIL_NOTIFICATION_NOSY,
