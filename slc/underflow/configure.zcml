@@ -64,6 +64,14 @@
         handler=".eventhandlers.notify_nosy"
         />
 
+    <subscriber
+        for="Products.PluggableAuthService.interfaces.events.IUserLoggedInEvent"
+        handler=".eventhandlers.pester_answerer"
+        />
+
+    <!-- indexes -->
+    <adapter name="inforequest" factory=".question.inforequest" />
+
     <!-- mail router -->
     <utility
         name="comment"

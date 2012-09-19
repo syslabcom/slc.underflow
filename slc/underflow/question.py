@@ -1,7 +1,9 @@
+from Products.ZCatalog.interfaces import IZCatalog
 from zope.schema import Datetime, Bool, Set, Choice
 from z3c.form.interfaces import INPUT_MODE
 from plone.app.textfield import RichText
 from plone.directives import form
+from plone.indexer import indexer
 from plone.app.discussion.browser.comments import CommentForm as \
     BaseCommentForm
 from plone.app.discussion.browser.comments import CommentsViewlet as \
@@ -34,3 +36,7 @@ class CommentForm(BaseCommentForm):
 
 class CommentsViewlet(BaseCommentsViewlet):
     form = CommentForm
+
+@indexer(IQuestion, IZCatalog)
+def inforequest(ob):
+    return ob.inforequest

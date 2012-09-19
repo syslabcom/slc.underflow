@@ -25,6 +25,7 @@ setup(
         'Products.CMFPlone',
         'plone.principalsource',
         'slc.mailrouter',
+        'slc.stickystatusmessages',
     ],
     entry_points="""
         [z3c.autoinclude.plugin]

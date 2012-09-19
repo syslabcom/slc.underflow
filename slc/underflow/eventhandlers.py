@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from smtplib import SMTPException
 
 from Acquisition import aq_parent
@@ -8,12 +9,15 @@ from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 from zope.component import getUtility
+from zope.annotation.interfaces import IAnnotations
+from zope.i18n import interpolate
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from plone.app.discussion.interfaces import IDiscussionSettings
 from plone.uuid.interfaces import IUUID
 
+from slc.stickystatusmessages.config import SSMKEY
 from slc.underflow.settings import getSettings
 from slc.underflow import MessageFactory as _
 
@@ -182,3 +186,35 @@ def notify_nosy(obj, event):
                          'email from %s to %s',
                          sender,
                          email)
+
+def pester_answerer(event):
+    # Place an annotation on the member that will cause sticky-status messages
+    # to display a notice
+    pm = getToolByName(event.object, 'portal_membership')
+    pc = getToolByName(event.object, 'portal_catalog')
+    userid = event.object.getUserId()
+    member = pm.getMemberById(userid)
+
+    # Find questions we need to answer
+    brains = pc(portal_type='slc.underflow.question', inforequest=True)
+
+    for brain in brains:
+        if userid not in brain.commentators:
+            # XXX This code really belongs in some utililty inside
+            # slc.stickystatusmessages
+            timestamp = datetime.now().isoformat()
+            annotations = IAnnotations(member)
+            sticky_messages = annotations.get(SSMKEY, {})
+
+            mapping = { 'u': brain.getURL() }
+            msg = _(u'An information request is waiting for your response. '
+                u'Click <a href="${u}">here</a> to respond to it now.')
+            msg = interpolate(msg, mapping)
+
+            mdict= {
+                'type': 'info',
+                'message': msg,
+                'timestamp': timestamp,
+                }
+            sticky_messages[timestamp] = mdict
+            annotations[SSMKEY] = sticky_messages
