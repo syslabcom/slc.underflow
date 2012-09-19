@@ -2,11 +2,12 @@ import logging
 from smtplib import SMTPException
 
 from Acquisition import aq_parent
-from zope.component import queryUtility
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema.interfaces import IVocabularyFactory
+from zope.component import getUtility
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
@@ -103,7 +104,8 @@ def notify_followers(obj, event):
 # Event handler for IObjectAddedEvent and IObjectModifiedEvent to let all
 # nosy know of changes to the question object.
 def notify_nosy(obj, event):
-    """ Tell the nosy list (groups) about the new question. """
+    """ Give the nosy list access to the question. Then tell them about the new
+        question. """
 
     # Get info necessary to send email
     mail_host = getToolByName(obj, 'MailHost')
@@ -119,6 +121,17 @@ def notify_nosy(obj, event):
     # Check if a sender address is available
     if not sender:
         return
+
+    # Add Reader role on any nosy groups
+    vocab = getUtility(IVocabularyFactory, 'plone.principalsource.Groups')
+    disown = []
+    for gid in vocab(obj):
+        if gid.value in obj.nosy:
+            obj.manage_addLocalRoles(gid.value, ['Reader'])
+        else:
+            disown.append(gid.value)
+    if disown:
+        obj.manage_delLocalRoles(disown)
 
     emails = set()
     groups_tool = getToolByName(obj, 'portal_groups')
