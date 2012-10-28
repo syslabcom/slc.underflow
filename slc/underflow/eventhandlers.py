@@ -190,7 +190,13 @@ def notify_nosy(obj, event):
 def pester_answerer(event):
     # Place an annotation on the member that will cause sticky-status messages
     # to display a notice
-    pm = getToolByName(event.object, 'portal_membership')
+    
+    try:
+        # if logging in with a zope user, this fails. 
+        pm = getToolByName(event.object, 'portal_membership')
+    except:
+        return 
+
     pc = getToolByName(event.object, 'portal_catalog')
     userid = event.object.getUserId()
     member = pm.getMemberById(userid)
