@@ -15,6 +15,7 @@
 
   <!-- schema and class used for content items -->
   <property name="schema">slc.underflow.question.IQuestion</property> 
+  <property name="klass">slc.underflow.question.Question</property> 
 
   <property name="behaviors">
      <element value="plone.app.content.interfaces.INameFromTitle" />

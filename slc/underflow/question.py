@@ -1,8 +1,9 @@
 from Products.ZCatalog.interfaces import IZCatalog
+from five import grok
 from zope.schema import Datetime, Bool, Set, Choice
 from z3c.form.interfaces import INPUT_MODE
 from plone.app.textfield import RichText
-from plone.directives import form
+from plone.directives import dexterity, form
 from plone.indexer import indexer
 from plone.app.discussion.browser.comments import CommentForm as \
     BaseCommentForm
@@ -24,6 +25,13 @@ class IQuestion(form.Schema):
         default=set(),
         title=_(u"Audience"),
         value_type=Choice(vocabulary="plone.principalsource.Groups"))
+
+class Question(dexterity.Item):
+    grok.implements(IQuestion)
+
+    def __call__(self):
+        return self
+
 
 class CommentForm(BaseCommentForm):
     def updateWidgets(self):
