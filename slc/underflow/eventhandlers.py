@@ -199,7 +199,7 @@ def notify_nosy(obj, event):
 def pester_answerer(event):
     # Place an annotation on the member that will cause sticky-status messages
     # to display a notice
-    request = getattr(obj, 'REQUEST', None)
+    request = getattr(event.object, 'REQUEST', None)
     if not request:
         return
     if not ISlcUnderflow.providedBy(request):
