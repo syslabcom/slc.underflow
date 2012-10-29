@@ -204,13 +204,8 @@ def pester_answerer(event):
         return
     if not ISlcUnderflow.providedBy(request):
         return
-    
-    try:
-        # if logging in with a zope user, this fails. 
-        pm = getToolByName(event.object, 'portal_membership')
-    except:
-        return 
 
+    pm = getToolByName(event.object, 'portal_membership')
     pc = getToolByName(event.object, 'portal_catalog')
     userid = event.object.getUserId()
     member = pm.getMemberById(userid)
