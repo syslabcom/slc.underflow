@@ -205,7 +205,11 @@ def pester_answerer(event):
     if not ISlcUnderflow.providedBy(request):
         return
 
-    pm = getToolByName(event.object, 'portal_membership')
+    try:
+        pm = getToolByName(event.object, 'portal_membership')
+    except AttributeError:
+        # seldom case of zope user in event.object that cannot acquire portal tools
+        return
     pc = getToolByName(event.object, 'portal_catalog')
     userid = event.object.getUserId()
     member = pm.getMemberById(userid)
