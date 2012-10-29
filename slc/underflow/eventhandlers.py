@@ -5,7 +5,6 @@ from smtplib import SMTPException
 from Acquisition import aq_parent
 from zope.i18n import translate
 from zope.i18nmessageid import Message
-from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 from zope.component import getUtility
@@ -14,11 +13,11 @@ from zope.i18n import interpolate
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from plone.app.discussion.interfaces import IDiscussionSettings
 from plone.uuid.interfaces import IUUID
 
 from slc.stickystatusmessages.config import SSMKEY
 from slc.underflow.settings import getSettings
+from slc.underflow.interfaces import ISlcUnderflow 
 from slc.underflow import MessageFactory as _
 
 
@@ -52,6 +51,11 @@ def notify_followers(obj, event):
        This method composes and sends emails to all users that have added a
        comment to this conversation and requested to be notified of follow-ups.
     """
+    request = getattr(obj, 'REQUEST', None)
+    if not request:
+        return
+    if not ISlcUnderflow.providedBy(request):
+        return
 
     # Get info necessary to send email
     mail_host = getToolByName(obj, 'MailHost')
@@ -110,6 +114,11 @@ def notify_followers(obj, event):
 def notify_nosy(obj, event):
     """ Give the nosy list access to the question. Then tell them about the new
         question. """
+    request = getattr(obj, 'REQUEST', None)
+    if not request:
+        return
+    if not ISlcUnderflow.providedBy(request):
+        return
 
     # Get info necessary to send email
     mail_host = getToolByName(obj, 'MailHost')
@@ -190,6 +199,11 @@ def notify_nosy(obj, event):
 def pester_answerer(event):
     # Place an annotation on the member that will cause sticky-status messages
     # to display a notice
+    request = getattr(obj, 'REQUEST', None)
+    if not request:
+        return
+    if not ISlcUnderflow.providedBy(request):
+        return
     
     try:
         # if logging in with a zope user, this fails. 
