@@ -23,6 +23,7 @@ setup(
     install_requires=[
         'setuptools',
         'Products.CMFPlone',
+        'Products.UserAndGroupSelectionWidget',
         'plone.principalsource',
         'slc.mailrouter',
         'slc.stickystatusmessages',
