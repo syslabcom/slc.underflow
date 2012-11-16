@@ -109,6 +109,22 @@ def notify_followers(obj, event):
                          email)
 
 
+def get_nosy_members(context, ls):
+    """ The UserAndGroupSelectionWidget can return users and groups.
+
+        Identify the chosen groups and return their members as well as the
+        individually chosen members (while removing duplicates).
+    """
+    pg = getToolByName(context, 'portal_groups')
+    mt = getToolByName(context, 'portal_membership')
+    groups = pg.getGroupIds()
+    chosen_groups = list(set(ls).intersection(set(groups)))
+    chosen_members = list(set(ls).difference(set(groups)))
+    for g in chosen_groups:
+        chosen_members += pg.getGroupById(g).getGroupMemberIds()
+    return [mt.getMemberById(m) for m in list(set(chosen_members))]
+
+
 # Event handler for IObjectAddedEvent and IObjectModifiedEvent to let all
 # nosy know of changes to the question object.
 def notify_nosy(obj, event):
@@ -148,12 +164,11 @@ def notify_nosy(obj, event):
 
     emails = set()
     groups_tool = getToolByName(obj, 'portal_groups')
-    for gid in obj.nosy:
-        group = groups_tool.getGroupById(gid)
-        for member in group.getGroupMembers():
-            email = member.getProperty('email')
-            if email != '':
-                emails.add(email)
+    members = get_nosy_members(obj, obj.nosy)
+    for member in members:
+        email = member.getProperty('email')
+        if email != '':
+            emails.add(email)
 
     if not emails:
         return
