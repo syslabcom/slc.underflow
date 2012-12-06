@@ -139,8 +139,11 @@ def notify_nosy(obj, event):
     # Get info necessary to send email
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
+    membership = getToolByName(obj, 'portal_membership')
+    
     portal = portal_url.getPortalObject()
-
+    user_id = membership.getAuthenticatedMember().getId()
+    
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
@@ -167,7 +170,7 @@ def notify_nosy(obj, event):
     members = get_nosy_members(obj, obj.nosy)
     for member in members:
         email = member.getProperty('email')
-        if email != '':
+        if email != '' and email != user_id:
             emails.add(email)
 
     if not emails:
@@ -200,6 +203,9 @@ def notify_nosy(obj, event):
                      'link': obj.absolute_url(),
                      'text': text}),
             context=obj.REQUEST)
+
+    # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
+    
 
     for email in emails:
         # Send email
