@@ -6,7 +6,6 @@ from Acquisition import aq_parent
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope.lifecycleevent import ObjectModifiedEvent
-from zope.schema.interfaces import IVocabularyFactory
 from zope.component import getUtility
 from zope.annotation.interfaces import IAnnotations
 from zope.i18n import interpolate
@@ -154,14 +153,16 @@ def notify_nosy(obj, event):
     if not sender:
         return
 
-    # Add Reader role on any nosy groups
-    vocab = getUtility(IVocabularyFactory, 'plone.principalsource.Groups')
+    # Add Reader role on any nosy principals, remove from non-selected ones.
     disown = []
-    for gid in vocab(obj):
-        if gid.value in obj.nosy:
-            obj.manage_addLocalRoles(gid.value, ['Reader'])
-        else:
-            disown.append(gid.value)
+
+    for principal, roles in obj.get_local_roles():
+        if principal not in obj.nosy:
+            disown.append(principal)
+
+    for principal in obj.nosy:
+        obj.manage_addLocalRoles(principal, ['Reader'])
+        
     if disown:
         obj.manage_delLocalRoles(disown)
 
