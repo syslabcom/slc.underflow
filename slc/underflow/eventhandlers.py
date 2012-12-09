@@ -201,7 +201,7 @@ def notify_nosy(obj, event):
             MAIL_NOTIFICATION_NOSY,
             mapping={'title': safe_unicode(obj.title),
                      'link': obj.absolute_url(),
-                     'text': text}),
+                     'text': safe_unicode(text)}),
             context=obj.REQUEST)
 
     # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
