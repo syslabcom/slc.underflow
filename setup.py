@@ -28,6 +28,7 @@ setup(
         'slc.mailrouter',
         'slc.stickystatusmessages',
         'plone.app.dexterity',
+        'plone.app.referenceablebehavior',
     ],
     entry_points="""
         [z3c.autoinclude.plugin]
