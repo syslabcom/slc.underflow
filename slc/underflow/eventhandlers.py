@@ -33,14 +33,21 @@ MAIL_NOTIFICATION_MESSAGE = _(
 
 MAIL_NOTIFICATION_NOSY = _(
     u"mail_notification_nosy",
-    default=u"A question titled '${title}' "
-             "has been posted here: ${link}\n\n"
-             "---\n"
+    default=u"You have received the following message "
+             "in StarDesk from ${username}:\n\n"
              "${text}\n"
-             "---\n"
-             "To anwer this question, follow the provided link\n"
-             "or simply respond to this email while leaving the\n"
-             "subject line intact.")
+             "\n"
+             "To respond follow this link:\n"
+             "${link}")
+
+MAIL_NOTIFICATION_NOSY_INFOREQUEST = _(
+    u"mail_notification_nosy_inforequest",
+    default=u"Your <b>response is required</b> to this message from "
+             "${username} sent to ${container} members:\n\n"
+             "${text}\n"
+             "\n"
+             "To respond follow this link:\n"
+             "${link}")
 
 logger = logging.getLogger("slc.underflow.eventhandlers")
 
@@ -142,6 +149,7 @@ def notify_nosy(obj, event):
     
     portal = portal_url.getPortalObject()
     user_id = membership.getAuthenticatedMember().getId()
+    username = membership.getAuthenticatedMember().getProperty('fullname')
     
     settings = getSettings()
     if settings is None or settings.sender is None:
@@ -190,19 +198,33 @@ def notify_nosy(obj, event):
         text = ''
 
     if isinstance(event, ObjectModifiedEvent):
-        subject = translate(u"A question has been modified [${uid}]",
-            mapping={'uid': IUUID(obj)},
+        subject = translate(u"A question has been modified in ${container} [${uid}]",
+            mapping={'uid': IUUID(obj),
+                     'container': obj.aq_parent.Title()},
             context=obj.REQUEST)
     else:
-        subject = translate(u"A question has been posted [${uid}]",
-            mapping={'uid': IUUID(obj)},
-            context=obj.REQUEST)
+        if obj.inforequest:
+            subject = translate(u"Response required: StarDesk Message from ${username}",
+                mapping={'username': username or user_id},
+                context=obj.REQUEST)
+        else:
+            subject = translate(u"StarDesk Message from ${username} to ${container} members",
+                mapping={'username': username or user_id, 
+                         'container': obj.aq_parent.Title()},
+                context=obj.REQUEST)
+
+    if obj.inforequest:
+        template = MAIL_NOTIFICATION_NOSY_INFOREQUEST
+    else:
+        template = MAIL_NOTIFICATION_NOSY
 
     message = translate(Message(
-            MAIL_NOTIFICATION_NOSY,
-            mapping={'title': safe_unicode(obj.title),
+            template,
+            mapping={'username': username or user_id,
+                     'title': safe_unicode(obj.title),
                      'link': obj.absolute_url(),
-                     'text': safe_unicode(text)}),
+                     'text': safe_unicode(text),
+                     'container': obj.aq_parent.Title()}),
             context=obj.REQUEST)
 
     # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
