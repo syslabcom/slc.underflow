@@ -178,9 +178,10 @@ def notify_nosy(obj, event):
     groups_tool = getToolByName(obj, 'portal_groups')
     members = get_nosy_members(obj, obj.nosy)
     for member in members:
-        email = member.getProperty('email')
-        if email != '' and email != user_id:
-            emails.add(email)
+        if member is not None:
+            email = member.getProperty('email')
+            if email != '' and email != user_id:
+                emails.add(email)
 
     if not emails:
         return
