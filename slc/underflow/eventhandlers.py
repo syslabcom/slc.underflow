@@ -16,7 +16,7 @@ from plone.uuid.interfaces import IUUID
 
 from slc.stickystatusmessages.config import SSMKEY
 from slc.underflow.settings import getSettings
-from slc.underflow.interfaces import ISlcUnderflow 
+from slc.underflow.interfaces import ISlcUnderflow
 from slc.underflow import MessageFactory as _
 
 
@@ -42,7 +42,7 @@ MAIL_NOTIFICATION_NOSY = _(
 
 MAIL_NOTIFICATION_NOSY_INFOREQUEST = _(
     u"mail_notification_nosy_inforequest",
-    default=u"Your <b>response is required</b> to this message from "
+    default=u"Your response is required to this message from "
              "${username} sent to ${container} members:\n\n"
              "${text}\n"
              "\n"
@@ -67,7 +67,7 @@ def notify_followers(obj, event):
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     portal = portal_url.getPortalObject()
-    
+
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
@@ -146,11 +146,11 @@ def notify_nosy(obj, event):
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     membership = getToolByName(obj, 'portal_membership')
-    
+
     portal = portal_url.getPortalObject()
     user_id = membership.getAuthenticatedMember().getId()
     username = membership.getAuthenticatedMember().getProperty('fullname')
-    
+
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
@@ -170,7 +170,7 @@ def notify_nosy(obj, event):
 
     for principal in obj.nosy:
         obj.manage_addLocalRoles(principal, ['Reader'])
-        
+
     if disown:
         obj.manage_delLocalRoles(disown)
 
@@ -210,7 +210,7 @@ def notify_nosy(obj, event):
                 context=obj.REQUEST)
         else:
             subject = translate(u"StarDesk Message from ${username} to ${container} members",
-                mapping={'username': username or user_id, 
+                mapping={'username': username or user_id,
                          'container': obj.aq_parent.Title()},
                 context=obj.REQUEST)
 
@@ -229,7 +229,7 @@ def notify_nosy(obj, event):
             context=obj.REQUEST)
 
     # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
-    
+
 
     for email in emails:
         # Send email
