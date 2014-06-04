@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.0-P2-2 (unreleased)
+4.0-P3-1 (2014-06-04)
 ---------------------
 
 - Nothing changed yet.
