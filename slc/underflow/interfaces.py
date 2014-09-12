@@ -3,8 +3,10 @@ from zope.schema import TextLine
 from plone.app.discussion.interfaces import IDiscussionLayer
 from slc.underflow import MessageFactory as _
 
+
 class ISlcUnderflow(IDiscussionLayer):
     """ Browser Layer interface. """
+
 
 class ISettings(Interface):
     sender = TextLine(

@@ -1,23 +1,21 @@
-import logging
-from datetime import datetime
-from smtplib import SMTPException
-
 from Acquisition import aq_parent
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
+from datetime import datetime
+from plone.uuid.interfaces import IUUID
+from plone import api
+from slc.stickystatusmessages.config import SSMKEY
+from slc.underflow import MessageFactory as _
+from slc.underflow.interfaces import ISlcUnderflow
+from slc.underflow.settings import getSettings
+from smtplib import SMTPException
+from zope.annotation.interfaces import IAnnotations
+from zope.i18n import interpolate
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope.lifecycleevent import ObjectModifiedEvent
-from zope.component import getUtility
-from zope.annotation.interfaces import IAnnotations
-from zope.i18n import interpolate
-
-from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import safe_unicode
-from plone.uuid.interfaces import IUUID
-
-from slc.stickystatusmessages.config import SSMKEY
-from slc.underflow.settings import getSettings
-from slc.underflow.interfaces import ISlcUnderflow
-from slc.underflow import MessageFactory as _
+from zope import component
+import logging
 
 
 MAIL_NOTIFICATION_MESSAGE = _(
@@ -30,24 +28,6 @@ MAIL_NOTIFICATION_MESSAGE = _(
              "To respond to this comment, follow the provided link\n"
              "or simply respond to this email while leaving the\n"
              "subject line intact.")
-
-MAIL_NOTIFICATION_NOSY = _(
-    u"mail_notification_nosy",
-    default=u"You have received the following message "
-             "in StarDesk from ${username}:\n\n"
-             "${text}\n"
-             "\n"
-             "To respond follow this link:\n"
-             "${link}")
-
-MAIL_NOTIFICATION_NOSY_INFOREQUEST = _(
-    u"mail_notification_nosy_inforequest",
-    default=u"Your response is required to this message from "
-             "${username} sent to ${container} members:\n\n"
-             "${text}\n"
-             "\n"
-             "To respond follow this link:\n"
-             "${link}")
 
 logger = logging.getLogger("slc.underflow.eventhandlers")
 
@@ -148,8 +128,9 @@ def notify_nosy(obj, event):
     membership = getToolByName(obj, 'portal_membership')
 
     portal = portal_url.getPortalObject()
-    user_id = membership.getAuthenticatedMember().getId()
-    username = membership.getAuthenticatedMember().getProperty('fullname')
+    member = api.user.get_current()
+    user_id = member.getId()
+    username = member.getProperty('fullname')
 
     settings = getSettings()
     if settings is None or settings.sender is None:
@@ -215,22 +196,20 @@ def notify_nosy(obj, event):
                 context=obj.REQUEST)
 
     if obj.inforequest:
-        template = MAIL_NOTIFICATION_NOSY_INFOREQUEST
+        template = component.getMultiAdapter((obj, obj.REQUEST),
+                name="mail_notification_nosy_inforequest")
     else:
-        template = MAIL_NOTIFICATION_NOSY
+        template = component.getMultiAdapter((obj, obj.REQUEST),
+                name="mail_notification_nosy")
 
-    message = translate(Message(
-            template,
-            mapping={'username': username or user_id,
-                     'title': safe_unicode(obj.title),
-                     'link': obj.absolute_url(),
-                     'text': safe_unicode(text),
-                     'container': obj.aq_parent.Title()}),
-            context=obj.REQUEST)
-
+    message = template.render({
+        'username': username or user_id,
+        'title': safe_unicode(obj.title),
+        'link': obj.absolute_url(),
+        'text': safe_unicode(text),
+        'container': obj.aq_parent.Title()
+    })
     # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
-
-
     for email in emails:
         # Send email
         try:
@@ -240,6 +219,7 @@ def notify_nosy(obj, event):
                          'email from %s to %s',
                          sender,
                          email)
+
 
 def pester_answerer(event):
     # Place an annotation on the member that will cause sticky-status messages
