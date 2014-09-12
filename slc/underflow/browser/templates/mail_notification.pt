@@ -1,0 +1,10 @@
+<tal:root define="
+        dummy python:request.RESPONSE.setHeader('Content-Type', 'text/html;; charset=UTF-8');
+        options nocall:view/options">
+
+    A comment has been posted on '<tal:title replace="options/title"/>':
+
+    <tal:text replace="options/text"/>
+
+    <a tal:attributes="href options/link">Click here to repond</a>, or simply respond to this email while leaving the subject line intact.
+</tal:root>

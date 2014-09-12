@@ -20,7 +20,18 @@ class ConversationView(grok.View):
         return ''
 
 
-class InfoRequestNotificationEmail(grok.View):
+class NotificationMessage(grok.View):
+    grok.name("mail_notification")
+    grok.context(IQuestion)
+    grok.require("zope2.View")
+    grok.layer(ISlcUnderflow)
+
+    def render(self, options):
+        self.options = options
+        return ViewPageTemplateFile('templates/mail_notification.pt')(self)
+
+
+class NosyInfoRequestNotificationEmail(grok.View):
     grok.name("mail_notification_nosy_inforequest")
     grok.context(IQuestion)
     grok.require("zope2.View")
@@ -31,7 +42,7 @@ class InfoRequestNotificationEmail(grok.View):
         return ViewPageTemplateFile('templates/mail_notification_nosy_inforequest.pt')(self)
 
 
-class NotificationEmail(grok.View):
+class NosyNotificationEmail(grok.View):
     grok.name("mail_notification_nosy")
     grok.context(IQuestion)
     grok.require("zope2.View")

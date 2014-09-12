@@ -12,22 +12,10 @@ from smtplib import SMTPException
 from zope.annotation.interfaces import IAnnotations
 from zope.i18n import interpolate
 from zope.i18n import translate
-from zope.i18nmessageid import Message
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope import component
 import logging
 
-
-MAIL_NOTIFICATION_MESSAGE = _(
-    u"mail_notification_message",
-    default=u"A comment on '${title}' "
-             "has been posted here: ${link}\n\n"
-             "---\n"
-             "${text}\n"
-             "---\n\n"
-             "To respond to this comment, follow the provided link\n"
-             "or simply respond to this email while leaving the\n"
-             "subject line intact.")
 
 logger = logging.getLogger("slc.underflow.eventhandlers")
 
@@ -77,13 +65,14 @@ def notify_followers(obj, event):
     subject = translate(u"A comment has been posted [${uid}#${id}]",
         mapping={'uid': IUUID(content_object), 'id': obj.id},
         context=obj.REQUEST)
-    message = translate(Message(
-            MAIL_NOTIFICATION_MESSAGE,
-            mapping={'title': safe_unicode(content_object.title),
-                     'link': content_object.absolute_url() +
-                             '/view#' + obj.id,
-                     'text': obj.text}),
-            context=obj.REQUEST)
+    template = component.getMultiAdapter((obj, obj.REQUEST),
+        name="mail_notification")
+    message = template.render({
+            'title': safe_unicode(content_object.title),
+            'link': content_object.absolute_url() +
+                    '/view#' + obj.id,
+            'text': obj.text
+    })
     for email in emails:
         # Send email
         try:
