@@ -8,6 +8,7 @@
     i18n_domain="slc.underflow">
 
   <grok:grok package="." />
+  <include package=".browser" />
   <five:registerPackage package="." initialize=".initialize" />
 
   <include package="Products.CMFCore" file="permissions.zcml" />
@@ -20,14 +21,6 @@
       />
 
     <include package="plone.principalsource" />
-
-    <!-- Override plone.app.discussion's conversation view for questions -->
-    <browser:page
-        name="conversation_view"
-        for="slc.underflow.question.IQuestion"
-        class=".views.ConversationView"
-        permission="zope2.View"
-        />
 
     <!-- Override Comments viewlet -->
     <browser:viewlet

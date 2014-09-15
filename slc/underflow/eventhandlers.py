@@ -1,46 +1,21 @@
-import logging
-from datetime import datetime
-from smtplib import SMTPException
-
 from Acquisition import aq_parent
-from zope.i18n import translate
-from zope.i18nmessageid import Message
-from zope.lifecycleevent import ObjectModifiedEvent
-from zope.component import getUtility
-from zope.annotation.interfaces import IAnnotations
-from zope.i18n import interpolate
-
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
+from datetime import datetime
 from plone.uuid.interfaces import IUUID
-
+from plone import api
 from slc.stickystatusmessages.config import SSMKEY
-from slc.underflow.settings import getSettings
-from slc.underflow.interfaces import ISlcUnderflow 
 from slc.underflow import MessageFactory as _
+from slc.underflow.interfaces import ISlcUnderflow
+from slc.underflow.settings import getSettings
+from smtplib import SMTPException
+from zope.annotation.interfaces import IAnnotations
+from zope.i18n import interpolate
+from zope.i18n import translate
+from zope.lifecycleevent import ObjectModifiedEvent
+from zope import component
+import logging
 
-
-MAIL_NOTIFICATION_MESSAGE = _(
-    u"mail_notification_message",
-    default=u"A comment on '${title}' "
-             "has been posted here: ${link}\n\n"
-             "---\n"
-             "${text}\n"
-             "---\n\n"
-             "To respond to this comment, follow the provided link\n"
-             "or simply respond to this email while leaving the\n"
-             "subject line intact.")
-
-MAIL_NOTIFICATION_NOSY = _(
-    u"mail_notification_nosy",
-    default=u"A question titled '${title}' "
-             "has been posted here: ${link}\n\n"
-             "---\n"
-             "${text}\n"
-             "---\n"
-             "To anwer this question, follow the provided link\n"
-             "or simply respond to this email while leaving the\n"
-             "subject line intact.")
 
 logger = logging.getLogger("slc.underflow.eventhandlers")
 
@@ -60,7 +35,7 @@ def notify_followers(obj, event):
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     portal = portal_url.getPortalObject()
-    
+
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
@@ -90,13 +65,14 @@ def notify_followers(obj, event):
     subject = translate(u"A comment has been posted [${uid}#${id}]",
         mapping={'uid': IUUID(content_object), 'id': obj.id},
         context=obj.REQUEST)
-    message = translate(Message(
-            MAIL_NOTIFICATION_MESSAGE,
-            mapping={'title': safe_unicode(content_object.title),
-                     'link': content_object.absolute_url() +
-                             '/view#' + obj.id,
-                     'text': obj.text}),
-            context=obj.REQUEST)
+    template = component.getMultiAdapter((obj, obj.REQUEST),
+        name="mail_notification")
+    message = template.render({
+            'title': safe_unicode(content_object.title),
+            'link': content_object.absolute_url() +
+                    '/view#' + obj.id,
+            'text': obj.text
+    })
     for email in emails:
         # Send email
         try:
@@ -139,10 +115,12 @@ def notify_nosy(obj, event):
     mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     membership = getToolByName(obj, 'portal_membership')
-    
+
     portal = portal_url.getPortalObject()
-    user_id = membership.getAuthenticatedMember().getId()
-    
+    member = api.user.get_current()
+    user_id = member.getId()
+    username = member.getProperty('fullname')
+
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
@@ -162,7 +140,7 @@ def notify_nosy(obj, event):
 
     for principal in obj.nosy:
         obj.manage_addLocalRoles(principal, ['Reader'])
-        
+
     if disown:
         obj.manage_delLocalRoles(disown)
 
@@ -170,9 +148,10 @@ def notify_nosy(obj, event):
     groups_tool = getToolByName(obj, 'portal_groups')
     members = get_nosy_members(obj, obj.nosy)
     for member in members:
-        email = member.getProperty('email')
-        if email != '' and email != user_id:
-            emails.add(email)
+        if member is not None:
+            email = member.getProperty('email')
+            if email != '' and email != user_id:
+                emails.add(email)
 
     if not emails:
         return
@@ -190,24 +169,36 @@ def notify_nosy(obj, event):
         text = ''
 
     if isinstance(event, ObjectModifiedEvent):
-        subject = translate(u"A question has been modified [${uid}]",
-            mapping={'uid': IUUID(obj)},
+        subject = translate(u"A question has been modified in ${container} [${uid}]",
+            mapping={'uid': IUUID(obj),
+                     'container': obj.aq_parent.Title()},
             context=obj.REQUEST)
     else:
-        subject = translate(u"A question has been posted [${uid}]",
-            mapping={'uid': IUUID(obj)},
-            context=obj.REQUEST)
+        if obj.inforequest:
+            subject = translate(u"Response required: StarDesk Message from ${username}",
+                mapping={'username': username or user_id},
+                context=obj.REQUEST)
+        else:
+            subject = translate(u"StarDesk Message from ${username} to ${container} members",
+                mapping={'username': username or user_id,
+                         'container': obj.aq_parent.Title()},
+                context=obj.REQUEST)
 
-    message = translate(Message(
-            MAIL_NOTIFICATION_NOSY,
-            mapping={'title': safe_unicode(obj.title),
-                     'link': obj.absolute_url(),
-                     'text': safe_unicode(text)}),
-            context=obj.REQUEST)
+    if obj.inforequest:
+        template = component.getMultiAdapter((obj, obj.REQUEST),
+                name="mail_notification_nosy_inforequest")
+    else:
+        template = component.getMultiAdapter((obj, obj.REQUEST),
+                name="mail_notification_nosy")
 
+    message = template.render({
+        'username': username or user_id,
+        'title': safe_unicode(obj.title),
+        'link': obj.absolute_url(),
+        'text': safe_unicode(text),
+        'container': obj.aq_parent.Title()
+    })
     # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
-    
-
     for email in emails:
         # Send email
         try:
@@ -217,6 +208,7 @@ def notify_nosy(obj, event):
                          'email from %s to %s',
                          sender,
                          email)
+
 
 def pester_answerer(event):
     # Place an annotation on the member that will cause sticky-status messages

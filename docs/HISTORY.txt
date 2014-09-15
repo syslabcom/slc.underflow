@@ -1,8 +1,20 @@
 Changelog
 =========
 
-2.2 (unreleased)
-----------------
+4.0-P3-2 (unreleased)
+---------------------
+
+- Nothing changed yet.
+
+
+4.0-P3-1 (2014-06-04)
+---------------------
+
+- Nothing changed yet.
+
+
+3.0-P2-1 (2014-03-19)
+---------------------
 
 - Nothing changed yet.
 
@@ -11,6 +23,12 @@ Changelog
 ----------------
 
 - Nothing changed yet.
+
+
+2.0b2star (2012-12-13)
+----------------------
+
+- star specific notification messages, refs #6395 [reinhardt]
 
 
 2.0b2 (2012-12-10)
