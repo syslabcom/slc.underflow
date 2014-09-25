@@ -6,5 +6,7 @@
 
     <tal:text replace="options/text"/>
 
-    <a tal:attributes="href options/link">Click here to repond</a>, or simply respond to this email while leaving the subject line intact.
+    To respond to this comment, click the link given below or simply respond to this email while leaving the subject line intact.
+
+   <tal:link replace"options/link"/>
 </tal:root>

@@ -1,11 +1,10 @@
 <tal:root define="
         dummy python:request.RESPONSE.setHeader('Content-Type', 'text/html;; charset=UTF-8');
         options nocall:view/options">
-
     Your response is required to this message from <tal:username replace="options/username"/>
     sent to <tal:container replace="options/container"/> members:
 
     <tal:text replace="options/text"/>
 
-    <a tal:attributes="href options/link">Click here to reply.</a>
+    To respond, follow this link: <tal:link replace="options/link"/>
 </tal:root>

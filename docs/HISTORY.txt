@@ -1,8 +1,14 @@
 Changelog
 =========
 
-4.0-P3-2 (unreleased)
----------------------
+P3.12.1 (unreleased)
+--------------------
+
+- Nothing changed yet.
+
+
+P3.12.0 (2014-09-18)
+--------------------
 
 - Nothing changed yet.
 
@@ -19,8 +25,8 @@ Changelog
 - Nothing changed yet.
 
 
-2.0b3 (2013-04-08)
-------------------
+2.1 (2014-03-14)
+----------------
 
 - Nothing changed yet.
 
