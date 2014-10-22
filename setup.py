@@ -27,8 +27,9 @@ setup(
         'plone.principalsource',
         'slc.mailrouter',
         'slc.stickystatusmessages',
-        'plone.app.dexterity',
+        'plone.app.dexterity [grok]',
         'plone.app.referenceablebehavior',
+        'zope.app.pagetemplate',
     ],
     entry_points="""
         [z3c.autoinclude.plugin]
