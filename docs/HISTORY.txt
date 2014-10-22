@@ -1,7 +1,7 @@
 Changelog
 =========
 
-P3.12.1 (unreleased)
+P3.12.1 (2014-10-22)
 --------------------
 
 - fixed dependencies [reinhardt]
