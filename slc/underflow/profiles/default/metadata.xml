@@ -4,6 +4,7 @@
     <dependencies>
         <dependency>profile-slc.mailrouter:default</dependency>
         <dependency>profile-slc.stickystatusmessages:default</dependency>
+        <dependency>profile-plone.app.referenceablebehavior:default</dependency>
         <dependency>profile-Products.UserAndGroupSelectionWidget:default</dependency>
     </dependencies>
 </metadata>
