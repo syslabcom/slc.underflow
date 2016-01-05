@@ -3,7 +3,6 @@
     <version>1000</version>
     <dependencies>
         <dependency>profile-slc.mailrouter:default</dependency>
-        <dependency>profile-slc.stickystatusmessages:default</dependency>
         <dependency>profile-Products.UserAndGroupSelectionWidget:default</dependency>
     </dependencies>
 </metadata>

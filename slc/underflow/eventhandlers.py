@@ -1,16 +1,11 @@
 from Acquisition import aq_parent
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from datetime import datetime
 from plone.uuid.interfaces import IUUID
 from plone import api
-from slc.stickystatusmessages.config import SSMKEY
-from slc.underflow import MessageFactory as _
 from slc.underflow.interfaces import ISlcUnderflow
 from slc.underflow.settings import getSettings
 from smtplib import SMTPException
-from zope.annotation.interfaces import IAnnotations
-from zope.i18n import interpolate
 from zope.i18n import translate
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope import component
@@ -18,6 +13,7 @@ import logging
 
 
 logger = logging.getLogger("slc.underflow.eventhandlers")
+
 
 def notify_followers(obj, event):
     """Tell our followers when a comment has been added.
@@ -56,7 +52,7 @@ def notify_followers(obj, event):
     emails = set()
     for comment in conversation.getComments():
         if (obj != comment and
-            comment.user_notification and comment.author_email):
+           comment.user_notification and comment.author_email):
             emails.add(comment.author_email)
 
     if not emails:
@@ -198,7 +194,8 @@ def notify_nosy(obj, event):
         'text': safe_unicode(text),
         'container': obj.aq_parent.Title()
     })
-    # remove the current user from the notification, he doesn't need to receive it, he asked in the first place
+    # remove the current user from the notification, he doesn't need to receive
+    # it, he asked in the first place
     for email in emails:
         # Send email
         try:
@@ -214,44 +211,6 @@ def pester_answerer(event):
     # Place an annotation on the member that will cause sticky-status messages
     # to display a notice
 
-    # Stubbing out this method for a demo
+    # Not implemented
     return
 
-    request = getattr(event.object, 'REQUEST', None)
-    if not request:
-        return
-    if not ISlcUnderflow.providedBy(request):
-        return
-
-    try:
-        pm = getToolByName(event.object, 'portal_membership')
-    except AttributeError:
-        # seldom case of zope user in event.object that cannot acquire portal tools
-        return
-    pc = getToolByName(event.object, 'portal_catalog')
-    userid = event.object.getUserId()
-    member = pm.getMemberById(userid)
-
-    # Find questions we need to answer
-    brains = pc(portal_type='slc.underflow.question', inforequest=True)
-
-    for brain in brains:
-        if userid not in brain.commentators:
-            # XXX This code really belongs in some utililty inside
-            # slc.stickystatusmessages
-            timestamp = datetime.now().isoformat()
-            annotations = IAnnotations(member)
-            sticky_messages = annotations.get(SSMKEY, {})
-
-            mapping = { 'u': brain.getURL() }
-            msg = _(u'An information request is waiting for your response. '
-                u'Click <a href="${u}">here</a> to respond to it now.')
-            msg = interpolate(msg, mapping)
-
-            mdict= {
-                'type': 'info',
-                'message': msg,
-                'timestamp': timestamp,
-                }
-            sticky_messages[timestamp] = mdict
-            annotations[SSMKEY] = sticky_messages

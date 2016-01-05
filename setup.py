@@ -26,7 +26,6 @@ setup(
         'Products.UserAndGroupSelectionWidget',
         'plone.principalsource',
         'slc.mailrouter',
-        'slc.stickystatusmessages',
         'plone.app.dexterity',
         'plone.app.referenceablebehavior',
     ],
