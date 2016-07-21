@@ -2,7 +2,8 @@ from five import grok
 from zope import schema
 from z3c.form.interfaces import INPUT_MODE
 
-from plone.directives import dexterity, form
+from plone.dexterity.content import Item
+from plone.directives import form
 from plone.indexer import indexer
 
 from plone.app.textfield import RichText
@@ -13,10 +14,9 @@ from plone.app.discussion.browser.comments import CommentsViewlet as \
 
 from Products.CMFCore.utils import getToolByName
 from Products.ZCatalog.interfaces import IZCatalog
-from Products.UserAndGroupSelectionWidget.z3cform.widget import \
-                                        UsersAndGroupsSelectionFieldWidget
 
 from slc.underflow import MessageFactory as _
+
 
 class IQuestion(form.Schema):
     """ A question """
@@ -32,9 +32,10 @@ class IQuestion(form.Schema):
         title=_(u"Audience"),
         default=[],
         value_type=schema.TextLine())
-    form.widget(nosy=UsersAndGroupsSelectionFieldWidget)
+    # form.widget(nosy=UsersAndGroupsSelectionFieldWidget)
 
-class Question(dexterity.Item):
+
+class Question(Item):
     grok.implements(IQuestion)
 
     def __call__(self):
@@ -47,11 +48,13 @@ class CommentForm(BaseCommentForm):
         # Re-enable the user_notification checkbox
         mtool = getToolByName(self.context, 'portal_membership')
         member = mtool.getAuthenticatedMember()
-        if not (mtool.isAnonymousUser() or member.getProperty('email')==''):
+        if not (mtool.isAnonymousUser() or member.getProperty('email') == ''):
             self.widgets['user_notification'].mode = INPUT_MODE
+
 
 class CommentsViewlet(BaseCommentsViewlet):
     form = CommentForm
+
 
 @indexer(IQuestion, IZCatalog)
 def inforequest(ob):
