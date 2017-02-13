@@ -50,7 +50,7 @@
 
     <subscriber
         for="slc.underflow.question.IQuestion
-             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+             zope.lifecycleevent.interfaces.IObjectCreatedEvent"
         handler=".eventhandlers.notify_nosy"
         />
 

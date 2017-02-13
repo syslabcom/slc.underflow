@@ -1,6 +1,8 @@
 from Acquisition import aq_parent
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.interfaces.controlpanel import IMailSchema
 from Products.CMFPlone.utils import safe_unicode
+from plone.registry.interfaces import IRegistry
 from plone.uuid.interfaces import IUUID
 from plone import api
 from slc.underflow.interfaces import ISlcUnderflow
@@ -35,6 +37,10 @@ def notify_followers(obj, event):
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
+        if not sender:
+            registry = component.getUtility(IRegistry)
+            mail_settings = registry.forInterface(IMailSchema, prefix='plone')
+            sender = mail_settings.email_from_address
     else:
         sender = settings.sender
 
@@ -120,6 +126,10 @@ def notify_nosy(obj, event):
     settings = getSettings()
     if settings is None or settings.sender is None:
         sender = portal.getProperty('email_from_address')
+        if not sender:
+            registry = component.getUtility(IRegistry)
+            mail_settings = registry.forInterface(IMailSchema, prefix='plone')
+            sender = mail_settings.email_from_address
     else:
         sender = settings.sender
 
@@ -146,7 +156,7 @@ def notify_nosy(obj, event):
     for member in members:
         if member is not None:
             email = member.getProperty('email')
-            if email != '' and email != user_id:
+            if email != '':
                 emails.add(email)
 
     if not emails:
@@ -167,17 +177,17 @@ def notify_nosy(obj, event):
     if isinstance(event, ObjectModifiedEvent):
         subject = translate(u"A question has been modified in ${container} [${uid}]",
             mapping={'uid': IUUID(obj),
-                     'container': obj.aq_parent.Title()},
+                     'container': safe_unicode(obj.aq_parent.Title())},
             context=obj.REQUEST)
     else:
         if obj.inforequest:
             subject = translate(u"Response required: StarDesk Message from ${username}",
-                mapping={'username': username or user_id},
+                mapping={'username': safe_unicode(username or user_id)},
                 context=obj.REQUEST)
         else:
             subject = translate(u"StarDesk Message from ${username} to ${container} members",
-                mapping={'username': username or user_id,
-                         'container': obj.aq_parent.Title()},
+                mapping={'username': safe_unicode(username or user_id),
+                         'container': safe_unicode(obj.aq_parent.Title())},
                 context=obj.REQUEST)
 
     if obj.inforequest:
@@ -188,7 +198,7 @@ def notify_nosy(obj, event):
                 name="mail_notification_nosy")
 
     message = template.render({
-        'username': username or user_id,
+        'username': safe_unicode(username or user_id),
         'title': safe_unicode(obj.title),
         'link': obj.absolute_url(),
         'text': safe_unicode(text),
