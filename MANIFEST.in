@@ -1,5 +1,8 @@
 recursive-include main_directory *
 recursive-include docs *
+recursive-include slc *.pt
+recursive-include slc *.xml
+recursive-include slc *.zcml
 include *
 global-exclude *.pyc
 

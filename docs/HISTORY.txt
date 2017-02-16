@@ -4,7 +4,8 @@ Changelog
 6.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- import fix [pilz]
+- Fixed notification mails. Refs #14950 [reinhardt]
 
 
 6.0 (2016-01-05)
