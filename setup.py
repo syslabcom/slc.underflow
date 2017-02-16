@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '6.1.dev0'
+version = '6.1.0'
 
 setup(
     name='slc.underflow',
