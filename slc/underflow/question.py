@@ -1,5 +1,5 @@
-from five import grok
 from zope import schema
+from zope.interface import implementer
 from z3c.form.interfaces import INPUT_MODE
 
 from plone.dexterity.content import Item
@@ -34,8 +34,8 @@ class IQuestion(form.Schema):
         value_type=schema.TextLine())
 
 
+@implementer(IQuestion)
 class Question(Item):
-    grok.implements(IQuestion)
 
     def __call__(self):
         return self

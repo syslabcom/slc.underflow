@@ -3,10 +3,39 @@
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
-    xmlns:grok="http://namespaces.zope.org/grok"
     xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="slc.underflow">
 
-  <grok:grok package="." />
+    <browser:page
+        name="conversation_view"
+        for="slc.underflow.question.IQuestion"
+        class=".views.ConversationView"
+        layer="slc.underflow.interfaces.ISlcUnderflow"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        name="mail_notification"
+        for="slc.underflow.question.IQuestion"
+        layer="slc.underflow.interfaces.ISlcUnderflow"
+        permission="zope2.View"
+        template="templates/mail_notification.pt"
+        />
+
+    <browser:page
+        name="mail_notification_nosy_inforequest"
+        for="slc.underflow.question.IQuestion"
+        layer="slc.underflow.interfaces.ISlcUnderflow"
+        permission="zope2.View"
+        template="templates/mail_notification_nosy_inforequest.pt"
+        />
+
+    <browser:page
+        name="mail_notification_nosy"
+        for="slc.underflow.question.IQuestion"
+        layer="slc.underflow.interfaces.ISlcUnderflow"
+        permission="zope2.View"
+        template="templates/mail_notification_nosy.pt"
+        />
 
 </configure>
