@@ -87,9 +87,7 @@ def notify_followers(obj, event):
 
 
 def get_nosy_members(context, ls):
-    """ The UserAndGroupSelectionWidget can return users and groups.
-
-        Identify the chosen groups and return their members as well as the
+    """ Identify the chosen groups and return their members as well as the
         individually chosen members (while removing duplicates).
     """
     pg = getToolByName(context, 'portal_groups')

@@ -32,7 +32,6 @@ class IQuestion(form.Schema):
         title=_(u"Audience"),
         default=[],
         value_type=schema.TextLine())
-    # form.widget(nosy=UsersAndGroupsSelectionFieldWidget)
 
 
 class Question(Item):

@@ -1,0 +1,20 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:gs="http://namespaces.zope.org/genericsetup"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    i18n_domain="plone"
+    >
+
+  <gs:upgradeSteps
+        source="1000"
+        destination="1001"
+        profile="slc.underflow:default">
+
+    <gs:upgradeStep
+        title="Remove the IReferenceable behavior"
+        handler=".to1001.fix_behaviors"
+        />
+  </gs:upgradeSteps>
+
+</configure>
+

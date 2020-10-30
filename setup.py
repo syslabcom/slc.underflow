@@ -23,11 +23,9 @@ setup(
     install_requires=[
         'setuptools',
         'Products.CMFPlone',
-        'Products.UserAndGroupSelectionWidget',
         'plone.principalsource',
         'slc.mailrouter',
         'plone.app.dexterity',
-        'plone.app.referenceablebehavior',
     ],
     entry_points="""
         [z3c.autoinclude.plugin]
