@@ -21,8 +21,6 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
-    <include package="plone.principalsource" />
-
     <!-- Override Comments viewlet -->
     <browser:viewlet
         name="plone.comments"

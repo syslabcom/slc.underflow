@@ -23,7 +23,6 @@ setup(
     install_requires=[
         'setuptools',
         'Products.CMFPlone',
-        'plone.principalsource',
         'slc.mailrouter',
         'plone.app.dexterity',
     ],
