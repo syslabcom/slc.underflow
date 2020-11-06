@@ -30,7 +30,6 @@ def notify_followers(obj, event):
         return
 
     # Get info necessary to send email
-    mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
     portal = portal_url.getPortalObject()
 
@@ -78,7 +77,8 @@ def notify_followers(obj, event):
     for email in emails:
         # Send email
         try:
-            mail_host.send(message, email, sender, subject, charset='utf-8')
+            api.portal.send_email(
+                sender=sender, recipient=email, subject=subject, body=message)
         except SMTPException:
             logger.error('SMTP exception while trying to send an ' +
                          'email from %s to %s',
@@ -112,9 +112,7 @@ def notify_nosy(obj, event):
         return
 
     # Get info necessary to send email
-    mail_host = getToolByName(obj, 'MailHost')
     portal_url = getToolByName(obj, 'portal_url')
-    membership = getToolByName(obj, 'portal_membership')
 
     portal = portal_url.getPortalObject()
     member = api.user.get_current()
@@ -149,7 +147,6 @@ def notify_nosy(obj, event):
         obj.manage_delLocalRoles(disown)
 
     emails = set()
-    groups_tool = getToolByName(obj, 'portal_groups')
     members = get_nosy_members(obj, obj.nosy)
     for member in members:
         if member is not None:
@@ -207,7 +204,8 @@ def notify_nosy(obj, event):
     for email in emails:
         # Send email
         try:
-            mail_host.send(message, email, sender, subject, charset='utf-8')
+            api.portal.send_email(
+                sender=sender, recipient=email, subject=subject, body=message)
         except SMTPException:
             logger.error('SMTP exception while trying to send an ' +
                          'email from %s to %s',
@@ -221,4 +219,3 @@ def pester_answerer(event):
 
     # Not implemented
     return
-

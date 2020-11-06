@@ -17,6 +17,7 @@
     <browser:page
         name="mail_notification"
         for="slc.underflow.question.IQuestion"
+        class=".views.NotificationMessage"
         layer="slc.underflow.interfaces.ISlcUnderflow"
         permission="zope2.View"
         template="templates/mail_notification.pt"
@@ -25,6 +26,7 @@
     <browser:page
         name="mail_notification_nosy_inforequest"
         for="slc.underflow.question.IQuestion"
+        class=".views.NosyInfoRequestNotificationEmail"
         layer="slc.underflow.interfaces.ISlcUnderflow"
         permission="zope2.View"
         template="templates/mail_notification_nosy_inforequest.pt"
@@ -33,6 +35,7 @@
     <browser:page
         name="mail_notification_nosy"
         for="slc.underflow.question.IQuestion"
+        class=".views.NosyNotificationEmail"
         layer="slc.underflow.interfaces.ISlcUnderflow"
         permission="zope2.View"
         template="templates/mail_notification_nosy.pt"
