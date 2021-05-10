@@ -1,9 +1,10 @@
 Changelog
 =========
 
-6.1.1 (unreleased)
+6.2.0 (2021-05-10)
 ------------------
 
+- Plone 5.2 compatibility
 - Do not use Products.UserAndGroupSelectionWidget anymore [ale-rt]
 
 
